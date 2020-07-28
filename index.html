@@ -3,64 +3,83 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>text Search</title>
+  <title>Cari Teks Video Youtube</title>
   <link rel="stylesheet" href="https://unpkg.com/tailwindcss@1.5.2/dist/tailwind.min.css">
+  <style>
+    .url{
+      width: 300px;
+    }
+    .url:focus{
+      width: 500px;
+    }
+    .fade-enter-active, .fade-leave-active {
+      transition: opacity .2s;
+    }
+    .fade-enter, .fade-leave-to /* .fade-leave-active below version 2.1.8 */ {
+      opacity: 0;
+    }
+  </style>
 </head>
 <body class="bg-gray-100">
   <main id="app">
     <div class="container m-3 flex flex-col justify-center items-center">
-        <h3 class="text-red-600 font-bold text-3xl mb-3">Cari Teks Video Youtube</h3>
-        <div class="mb-3">
-          <input type="text" class="w-64 shadow border border-black-300 px-4 py-2 rounded url" v-model="url" placeholder="masukan url youtube..">
-        </div>
-  
+        <h3 class="text-red-600 font-bold text-3xl mb-3 uppercase">Cari Teks Video Youtube</h3>
+          <input type="text" class="mb-3 shadow border border-black-300 px-4 py-2 rounded transistion duration-300 url" v-model="url" placeholder="masukan url youtube..">
         <div class="flex">
-          <input type="text" class="shadow border border-black-300 px-4 py-2 rounded keyword" v-model="keyword" placeholder="masukan keyword..">
+          <input type="text" v-model="keyword" placeholder="masukan keyword.." 
+                 class="shadow border border-black-300 px-4 py-2 rounded keyword" :autofocus="'autofocus'">
           <button class="bg-red-600 text-white shadow px-3 py-1 rounded ml-2 hover:bg-red-700" @click="bersihkan()">
-            <svg width="1em" height="1em" viewBox="0 0 16 16" class="bi bi-trash" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+            <svg width="1.3em" height="1.3em" viewBox="0 0 16 16" class="bi bi-trash" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
               <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6z"/>
               <path fill-rule="evenodd" d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1v1zM4.118 4L4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118zM2.5 3V2h11v1h-11z"/>
             </svg>
           </button>
         </div>
-        <div v-if="errorKeyword" class="text-red-500 mt-1">{{ errorKeyword }}</div>
-        <div class="mb-3 mt-3">
+        <div v-if="errorKeyword" class="text-red-500 mt-1 text-sm">{{ errorKeyword }}</div>
+        <div class="my-3">
   
           <button @click="onFirstClick" :disabled="!pagination.first"
                   :class="!pagination.first
-                          ? 'cursor-not-allowed bg-gray-200 text-gray-500 shadow px-3 py-1 rounded'
+                          ? 'cursor-not-allowed bg-blue-500 opacity-75 text-white shadow px-3 py-1 rounded'
                           : 'bg-blue-600 text-white shadow px-3 py-1 rounded hover:bg-blue-700'"
           >first</button>
   
           <button @click="onPrevClick" :disabled="!pagination.prev"
                   :class="!pagination.prev
-                          ? 'cursor-not-allowed bg-gray-200 text-gray-500 shadow px-3 py-1 rounded'
+                          ? 'cursor-not-allowed bg-blue-500 opacity-75 text-white shadow px-3 py-1 rounded'
                           : 'bg-blue-600 text-white shadow px-3 py-1 rounded hover:bg-blue-700'"
           >prev</button>
   
           <button @click="onNextClick" :disabled="!pagination.next"
                   :class="!pagination.next
-                          ? 'cursor-not-allowed bg-gray-200 text-gray-500 shadow px-3 py-1 rounded'
+                          ? 'cursor-not-allowed bg-blue-500 opacity-75 text-white shadow px-3 py-1 rounded'
                           : 'bg-blue-600 text-white shadow px-3 py-1 rounded hover:bg-blue-700'"
           >next</button>
   
           <button @click="onLastClick" :disabled="!pagination.last"
                   :class="!pagination.last
-                          ? 'cursor-not-allowed bg-gray-200 text-gray-500 shadow px-3 py-1 rounded'
+                          ? 'cursor-not-allowed bg-blue-500 opacity-75 text-white shadow px-3 py-1 rounded'
                           : 'bg-blue-600 text-white shadow px-3 py-1 rounded hover:bg-blue-700'"
           >last</button>
         </div>
   
-        <div v-if="pagination.total || pagination.page" class="mb-5">
+        <div v-if="pagination.total || pagination.page" class="mb-5 text-gray-600">
           Total Hasil : {{ pagination.total }} | Halaman ke : {{ pagination.page }}
         </div>
-
-        <ol v-if="result.length > 2" class="daftar bg-white p-4 rounded shadow-lg">
-          <li class="leading-8" v-for="(hasil, index) in result" :key="index">
-          {{ index + 1 }}. <span v-html="hasil.text"></span>
-          <a class="text-blue-600 underline" :href="url + '&t=' + hasil.start + 's'" target="_blank">go to youtube</a>
-          </li>
-        </ol>
+        <transition name="fade">
+          <ol v-if="result.length > 2" v-s class="daftar bg-white p-4 rounded shadow-lg transistion duration-300 opacity-100">
+            <li class="leading-8" v-for="(hasil, index) in result" :key="index">
+            <div class="flex items-center">
+              {{ index + 1 }}. <span v-html="hasil.text"></span>
+            <a class=" text-blue-600 p-1 rounded hover:text-blue-700" :href="url + '&t=' + hasil.start + 's'" target="_blank">
+              <svg width="1.3em" height="1.3em" viewBox="0 0 16 16" class="bi bi-arrow-right-square-fill" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                <path fill-rule="evenodd" d="M2 0a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2H2zm5.646 10.646a.5.5 0 0 0 .708.708l3-3a.5.5 0 0 0 0-.708l-3-3a.5.5 0 1 0-.708.708L9.793 7.5H5a.5.5 0 0 0 0 1h4.793l-2.147 2.146z"/>
+              </svg>
+            </a>
+            </div>
+            </li>
+          </ol>
+        </transition>
 
       <!-- <div class="my-3">
         <pre>{{ paginationString }}</pre>
@@ -101,8 +120,8 @@
       },
       watch: {
         keyword : pDebounce(function (keyword) {
+          this.errorKeyword = ''
           this.search(keyword, this.url)
-          console.log(this.keyword)
         }, 300)
       },
       methods: {
@@ -111,9 +130,6 @@
         if(keyword){
           if(keyword.length < 3){
           this.errorKeyword = 'Keyword terlalu kecil, harus lebih dari 2'
-          setTimeout(() => {
-            this.errorKeyword = ''
-          }, 2000);
           return null
         }else {
           this.errorKeyword = ''
@@ -131,6 +147,12 @@
               return []
             }
           })
+          if(response.total == 0){
+            this.errorKeyword = 'tidak ada yang sesuai dengan keyword'
+          }else{
+            this.errorKeyword = ''
+
+          }
           this.result = response.data
           this.pagination.first = response.first
           this.pagination.prev = response.prev
